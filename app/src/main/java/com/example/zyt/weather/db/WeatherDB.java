@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.example.zyt.weather.model.City;
 import com.example.zyt.weather.model.County;
+import com.example.zyt.weather.model.Province;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class WeatherDB {
         return weatherDB;
     }
 
-    public void saveProvince(City province) {
+    public void saveProvince(Province province) {
         if (province != null) {
             ContentValues values = new ContentValues();
             values.put("province_name", province.getName());
@@ -41,12 +42,12 @@ public class WeatherDB {
         }
     }
 
-    public List<City> loadProvinces() {
-        List<City> provinces = new ArrayList<>();
+    public List<Province> loadProvinces() {
+        List<Province> provinces = new ArrayList<>();
         Cursor cursor = db.query("Province", null, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             do {
-                City province = new City();
+                Province province = new Province();
                 province.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 province.setName(cursor.getString(cursor.getColumnIndex("province_name")));
                 province.setCode(cursor.getString(cursor.getColumnIndex("province_code")));
