@@ -90,7 +90,7 @@ public class ChooseAreaActivity extends AppCompatActivity {
     }
 
     private void queryCities() {
-        cityList = weatherDB.loadCities(selectedProvince.getCode());
+        cityList = weatherDB.loadCities(selectedProvince.getName());
         if (cityList.size() > 0) {
             dataList.clear();
             for (City c : cityList) {
@@ -108,7 +108,7 @@ public class ChooseAreaActivity extends AppCompatActivity {
     private int times = 0;
 
     private void queryCounties() {
-        countyList = weatherDB.loadCounties(selectedCity.getCode());
+        countyList = weatherDB.loadCounties(selectedCity.getName());
         if (countyList.size() > 0 || times >= 1) {
             dataList.clear();
             for (County c : countyList) {
@@ -146,10 +146,10 @@ public class ChooseAreaActivity extends AppCompatActivity {
                 public void onSuccess(int i, String s) {
                     if (type.equals("city")) {
                         result = Utility.handleCitiesResponse(weatherDB, s, selectedProvince
-                                .getCode());
+                                .getName());
                     } else if (type.equals("county")) {
                         result = Utility.handleCountiesResponse(weatherDB, s, selectedCity
-                                .getCode());
+                                .getName());
                     }
 
                     if (result) {

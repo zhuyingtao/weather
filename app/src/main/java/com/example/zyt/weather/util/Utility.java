@@ -39,19 +39,19 @@ public class Utility {
     //        "area_id": "101180101"
     //}
     public synchronized static boolean handleCitiesResponse(WeatherDB weatherDB, String response,
-                                                            String provinceCode) {
+                                                            String provinceName) {
         List<City> cities = new ArrayList<>();
         try {
             JSONObject jsonObject = (JSONObject) new JSONTokener(response).nextValue();
             JSONArray jsonArray = jsonObject.getJSONArray("retData");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject object = jsonArray.getJSONObject(i);
-                // provinceId must be matched;
-                if (provinceCode.equals(object.getString("area_id").substring(3, 5))) {
+                // provinceName must be matched;
+                if (provinceName.equals(object.getString("province_cn"))) {
                     City city = new City();
                     city.setName(object.getString("district_cn"));
                     city.setCode(object.getString("area_id").substring(3, 7));
-                    city.setProvinceCode(provinceCode);
+                    city.setProvinceName(provinceName);
                     // only store the unrepeated city;
                     if (!cities.contains(city)) {
                         cities.add(city);
@@ -61,7 +61,7 @@ public class Utility {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.v("city" + provinceCode, cities.toString());
+        Log.v("city" + provinceName, cities.toString());
         if (cities.size() > 0) {
             for (City c : cities) {
                 weatherDB.saveCity(c);
@@ -78,7 +78,7 @@ public class Utility {
     //        "area_id": "101120102"
     //}
     public synchronized static boolean handleCountiesResponse(WeatherDB weatherDB, String response,
-                                                              String cityCode) {
+                                                              String cityName) {
         List<County> counties = new ArrayList<>();
         try {
             JSONObject jsonObject = (JSONObject) new JSONTokener(response).nextValue();
@@ -86,11 +86,11 @@ public class Utility {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject object = jsonArray.getJSONObject(i);
                 // cityId must be matched;
-                if (cityCode.equals(object.getString("area_id").substring(3, 7))) {
+                if (cityName.equals(object.getString("district_cn"))) {
                     County county = new County();
                     county.setName(object.getString("name_cn"));
                     county.setCode(object.getString("area_id").substring(3));
-                    county.setCityCode(cityCode);
+                    county.setCityName(cityName);
                     // only store the unrepeated county;
                     if (!counties.contains(county)) {
                         counties.add(county);
@@ -100,7 +100,7 @@ public class Utility {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.v("county" + cityCode, counties.toString());
+        Log.v("county" + cityName, counties.toString());
         if (counties.size() > 0) {
             for (County c : counties) {
                 weatherDB.saveCounty(c);

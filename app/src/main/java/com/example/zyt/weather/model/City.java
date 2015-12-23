@@ -7,14 +7,14 @@ public class City {
     private int id;
     private String name;
     private String code;
-    private String provinceCode;
+    private String provinceName;
 
-    public String getProvinceCode() {
-        return provinceCode;
+    public String getProvinceName() {
+        return provinceName;
     }
 
-    public void setProvinceCode(String provinceCode) {
-        this.provinceCode = provinceCode;
+    public void setProvinceName(String provinceName) {
+        this.provinceName = provinceName;
     }
 
     public String getCode() {
