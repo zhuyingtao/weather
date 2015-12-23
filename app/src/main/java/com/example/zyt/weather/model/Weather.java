@@ -5,8 +5,8 @@ package com.example.zyt.weather.model;
  */
 public class Weather {
     private String cityName;
-    private int lowTemp;
-    private int highTemp;
+    private String lowTemp;
+    private String highTemp;
     private String weatherDesc;
     private String publishTime;
 
@@ -18,19 +18,19 @@ public class Weather {
         this.cityName = cityName;
     }
 
-    public int getLowTemp() {
+    public String getLowTemp() {
         return lowTemp;
     }
 
-    public void setLowTemp(int lowTemp) {
+    public void setLowTemp(String lowTemp) {
         this.lowTemp = lowTemp;
     }
 
-    public int getHighTemp() {
+    public String getHighTemp() {
         return highTemp;
     }
 
-    public void setHighTemp(int highTemp) {
+    public void setHighTemp(String highTemp) {
         this.highTemp = highTemp;
     }
 

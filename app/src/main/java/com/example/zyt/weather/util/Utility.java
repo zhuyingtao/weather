@@ -156,12 +156,14 @@ public class Utility {
             String cityName = weatherInfo.getString("city");
             String lowTemp = weatherInfo.getString("l_tmp");
             String highTemp = weatherInfo.getString("h_tmp");
+            if (lowTemp == null || lowTemp.length() == 0) lowTemp = "无";
+            if (highTemp == null || highTemp.length() == 0) highTemp = "无";
             String weatherDesc = weatherInfo.getString("weather");
             String publishTime = weatherInfo.getString("time");
             Weather weather = new Weather();
             weather.setCityName(cityName);
-            weather.setLowTemp(Integer.parseInt(lowTemp));
-            weather.setHighTemp(Integer.parseInt(highTemp));
+            weather.setLowTemp(lowTemp);
+            weather.setHighTemp(highTemp);
             weather.setWeatherDesc(weatherDesc);
             weather.setPublishTime(publishTime);
             saveWeatherInfo(context, weather);
@@ -176,8 +178,8 @@ public class Utility {
                 .edit();
         editor.putBoolean("city_selected", true);
         editor.putString("city_name", weather.getCityName());
-        editor.putInt("low_temp", weather.getLowTemp());
-        editor.putInt("high_temp", weather.getHighTemp());
+        editor.putString("low_temp", weather.getLowTemp());
+        editor.putString("high_temp", weather.getHighTemp());
         editor.putString("weather_desc", weather.getWeatherDesc());
         editor.putString("publish_time", weather.getPublishTime());
         editor.putString("current_date", simpleDateFormat.format(new Date()));
