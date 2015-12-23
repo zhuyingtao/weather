@@ -7,14 +7,14 @@ public class City {
     private int id;
     private String name;
     private String code;
-    private int provinceId;
+    private String provinceCode;
 
-    public int getProvinceId() {
-        return provinceId;
+    public String getProvinceCode() {
+        return provinceCode;
     }
 
-    public void setProvinceId(int provinceId) {
-        this.provinceId = provinceId;
+    public void setProvinceCode(String provinceCode) {
+        this.provinceCode = provinceCode;
     }
 
     public String getCode() {
@@ -39,5 +39,15 @@ public class City {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this.name.equals(((City) o).name);
+    }
+
+    @Override
+    public String toString() {
+        return this.name + " " + this.code;
     }
 }

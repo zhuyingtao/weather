@@ -1,29 +1,35 @@
 package com.example.zyt.weather.activity;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.baidu.apistore.sdk.ApiCallBack;
+import com.baidu.apistore.sdk.ApiStoreSDK;
+import com.baidu.apistore.sdk.network.Parameters;
 import com.example.zyt.weather.R;
 import com.example.zyt.weather.db.WeatherDB;
 import com.example.zyt.weather.model.City;
 import com.example.zyt.weather.model.County;
 import com.example.zyt.weather.model.Province;
+import com.example.zyt.weather.util.Utility;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChooseAreaActivity extends AppCompatActivity {
 
     public static final int LEVEL_PROVINCE = 0;
-    public static final int LEVEL_CITY = 0;
-    public static final int LEVEL_COUNTY = 0;
+    public static final int LEVEL_CITY = 1;
+    public static final int LEVEL_COUNTY = 2;
     private int currentLevel;
 
 
@@ -40,14 +46,16 @@ public class ChooseAreaActivity extends AppCompatActivity {
     private Province selectedProvince;
     private City selectedCity;
 
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.choose_area);
         listView = (ListView) findViewById(R.id.list_view);
         titleText = (TextView) findViewById(R.id.title_text);
-        adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item, dataList);
+        adapter = new ArrayAdapter<>(this, R.layout.simple_list_item, dataList);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -82,7 +90,7 @@ public class ChooseAreaActivity extends AppCompatActivity {
     }
 
     private void queryCities() {
-        cityList = weatherDB.loadCities(selectedProvince.getId());
+        cityList = weatherDB.loadCities(selectedProvince.getCode());
         if (cityList.size() > 0) {
             dataList.clear();
             for (City c : cityList) {
@@ -93,12 +101,12 @@ public class ChooseAreaActivity extends AppCompatActivity {
             titleText.setText(selectedProvince.getName());
             currentLevel = LEVEL_CITY;
         } else {
-            queryFromServer(selectedProvince.getCode(), "city");
+            queryFromServer(selectedProvince.getName(), "city");
         }
     }
 
     private void queryCounties() {
-        countyList = weatherDB.loadCounties(selectedCity.getId());
+        countyList = weatherDB.loadCounties(selectedCity.getCode());
         if (countyList.size() > 0) {
             dataList.clear();
             for (County c : countyList) {
@@ -109,14 +117,95 @@ public class ChooseAreaActivity extends AppCompatActivity {
             titleText.setText(selectedCity.getName());
             currentLevel = LEVEL_COUNTY;
         } else {
-            queryFromServer(selectedCity.getCode(), "county");
+            queryFromServer(selectedCity.getName(), "county");
         }
     }
 
-    private void queryFromServer(String code, String type) {
-        String address;
-        if (!TextUtils.isEmpty(code)) {
-            address="http://www.weather.com.cn/data/list3/city";
+    private void queryFromServer(final String code, final String type) {
+        showProgressDialog();
+        if ("province".equals(type)) {
+            Utility.handleProvincesResponse(weatherDB);
+            queryProvinces();
+            closeProgressDialog();
+        } else {
+            String address = "http://apis.baidu.com/apistore/weatherservice/citylist";
+            Parameters parameters = new Parameters();
+            try {
+                parameters.put("cityname", URLEncoder.encode(code, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            ApiStoreSDK.execute(address, ApiStoreSDK.GET, parameters, new ApiCallBack() {
+                boolean result = false;
+
+                @Override
+                public void onSuccess(int i, String s) {
+                    if (type.equals("city")) {
+                        result = Utility.handleCitiesResponse(weatherDB, s, selectedProvince
+                                .getCode());
+                    } else if (type.equals("county")) {
+                        result = Utility.handleCountiesResponse(weatherDB, s, selectedCity
+                                .getCode());
+                    }
+
+                    if (result) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                closeProgressDialog();
+                                if (type.equals("city")) {
+                                    queryCities();
+                                } else if (type.equals("county")) {
+                                    queryCounties();
+                                }
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onError(int i, String s, Exception e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            closeProgressDialog();
+                            Toast.makeText(ChooseAreaActivity.this, "加载失败", Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onComplete() {
+                    super.onComplete();
+                }
+            });
+        }
+    }
+
+    private void showProgressDialog() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("正在加载……");
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        progressDialog.show();
+    }
+
+    private void closeProgressDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (currentLevel == LEVEL_COUNTY) {
+            queryCities();
+        } else if (currentLevel == LEVEL_CITY) {
+            queryProvinces();
+        } else {
+            finish();
         }
     }
 }
