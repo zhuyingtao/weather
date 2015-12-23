@@ -1,18 +1,24 @@
 package com.example.zyt.weather.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.example.zyt.weather.db.WeatherDB;
 import com.example.zyt.weather.model.City;
 import com.example.zyt.weather.model.County;
 import com.example.zyt.weather.model.Province;
+import com.example.zyt.weather.model.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -119,5 +125,62 @@ public class Utility {
                 "四川"}, {"28", "广东"}, {"29", "云南"}, {"30", "广西"}, {"31", "海南"}, {"32", "香港"},
                 {"33", "澳门"}, {"34", "台湾"},};
         return provinces;
+    }
+
+
+    //{
+    //        city:"北京", //城市
+    //        pinyin:"beijing", //城市拼音
+    //        citycode:"101010100",  //城市编码
+    //        date:"15-02-11", //日期
+    //        time:"11:00", //发布时间
+    //        postCode:"100000", //邮编
+    //        longitude:116.391, //经度
+    //        latitude:39.904, //维度
+    //        altitude:"33", //海拔
+    //        weather:"晴",  //天气情况
+    //        temp:"10", //气温
+    //        l_tmp:"-4", //最低气温
+    //        h_tmp:"10", //最高气温
+    //        WD:"无持续风向",     //风向
+    //        WS:"微风(<10m/h)", //风力
+    //        sunrise:"07:12", //日出时间
+    //        sunset:"17:44" //日落时间
+    //}
+
+    public static void handleWeatherResponse(Context context, String response) {
+        Log.v("weather", response);
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONObject weatherInfo = jsonObject.getJSONObject("retData");
+            String cityName = weatherInfo.getString("city");
+            String lowTemp = weatherInfo.getString("l_tmp");
+            String highTemp = weatherInfo.getString("h_tmp");
+            String weatherDesc = weatherInfo.getString("weather");
+            String publishTime = weatherInfo.getString("time");
+            Weather weather = new Weather();
+            weather.setCityName(cityName);
+            weather.setLowTemp(Integer.parseInt(lowTemp));
+            weather.setHighTemp(Integer.parseInt(highTemp));
+            weather.setWeatherDesc(weatherDesc);
+            weather.setPublishTime(publishTime);
+            saveWeatherInfo(context, weather);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveWeatherInfo(Context context, Weather weather) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy 年M月d 日");
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context)
+                .edit();
+        editor.putBoolean("city_selected", true);
+        editor.putString("city_name", weather.getCityName());
+        editor.putInt("low_temp", weather.getLowTemp());
+        editor.putInt("high_temp", weather.getHighTemp());
+        editor.putString("weather_desc", weather.getWeatherDesc());
+        editor.putString("publish_time", weather.getPublishTime());
+        editor.putString("current_date", simpleDateFormat.format(new Date()));
+        editor.commit();
     }
 }
