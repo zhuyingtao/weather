@@ -38,7 +38,6 @@ public class Utility {
     //        "name_en": "zhengzhou",
     //        "area_id": "101180101"
     //}
-
     public synchronized static boolean handleCitiesResponse(WeatherDB weatherDB, String response,
                                                             String provinceCode) {
         List<City> cities = new ArrayList<>();
@@ -78,7 +77,6 @@ public class Utility {
     //        "name_en": "changqing",
     //        "area_id": "101120102"
     //}
-
     public synchronized static boolean handleCountiesResponse(WeatherDB weatherDB, String response,
                                                               String cityCode) {
         List<County> counties = new ArrayList<>();

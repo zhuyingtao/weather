@@ -55,7 +55,7 @@ public class ChooseAreaActivity extends AppCompatActivity {
         setContentView(R.layout.choose_area);
         listView = (ListView) findViewById(R.id.list_view);
         titleText = (TextView) findViewById(R.id.title_text);
-        adapter = new ArrayAdapter<>(this, R.layout.simple_list_item, dataList);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -105,9 +105,11 @@ public class ChooseAreaActivity extends AppCompatActivity {
         }
     }
 
+    private int times = 0;
+
     private void queryCounties() {
         countyList = weatherDB.loadCounties(selectedCity.getCode());
-        if (countyList.size() > 0) {
+        if (countyList.size() > 0 || times >= 1) {
             dataList.clear();
             for (County c : countyList) {
                 dataList.add(c.getName());
@@ -116,7 +118,9 @@ public class ChooseAreaActivity extends AppCompatActivity {
             listView.setSelection(0);
             titleText.setText(selectedCity.getName());
             currentLevel = LEVEL_COUNTY;
+            times = 0;
         } else {
+            times++;  //the data from server may have some problems;
             queryFromServer(selectedCity.getName(), "county");
         }
     }

@@ -62,14 +62,14 @@ public class WeatherDB {
             ContentValues values = new ContentValues();
             values.put("city_name", city.getName());
             values.put("city_code", city.getCode());
-            values.put("province_id", city.getProvinceCode());
+            values.put("province_code", city.getProvinceCode());
             db.insert("City", null, values);
         }
     }
 
     public List<City> loadCities(String provinceCode) {
         List<City> cities = new ArrayList<>();
-        Cursor cursor = db.query("City", null, "province_id = ?", new String[]{provinceCode}
+        Cursor cursor = db.query("City", null, "province_code = ?", new String[]{provinceCode}
                 , null, null, null);
         if (cursor.moveToFirst()) {
             do {
@@ -89,21 +89,21 @@ public class WeatherDB {
             ContentValues values = new ContentValues();
             values.put("county_name", county.getName());
             values.put("county_code", county.getCode());
-            values.put("city_id", county.getCityCode());
+            values.put("city_code", county.getCityCode());
             db.insert("County", null, values);
         }
     }
 
     public List<County> loadCounties(String cityCode) {
         List<County> counties = new ArrayList<>();
-        Cursor cursor = db.query("County", null, "city_id = ?", new String[]{cityCode}
+        Cursor cursor = db.query("County", null, "city_code = ?", new String[]{cityCode}
                 , null, null, null);
         if (cursor.moveToFirst()) {
             do {
                 County county = new County();
                 county.setId(cursor.getInt(cursor.getColumnIndex("id")));
-                county.setName(cursor.getString(cursor.getColumnIndex("city_name")));
-                county.setCode(cursor.getString(cursor.getColumnIndex("city_code")));
+                county.setName(cursor.getString(cursor.getColumnIndex("county_name")));
+                county.setCode(cursor.getString(cursor.getColumnIndex("county_code")));
                 county.setCityCode(cityCode);
                 counties.add(county);
             } while (cursor.moveToNext());
