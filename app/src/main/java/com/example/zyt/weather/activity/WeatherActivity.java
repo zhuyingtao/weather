@@ -1,5 +1,6 @@
 package com.example.zyt.weather.activity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +29,8 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView lowTemp;
     private TextView highTemp;
     private TextView currentDateText;
+    private Button switchCity;
+    private Button refreshWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,31 @@ public class WeatherActivity extends AppCompatActivity {
         lowTemp = (TextView) findViewById(R.id.temp1);
         highTemp = (TextView) findViewById(R.id.temp2);
         currentDateText = (TextView) findViewById(R.id.current_date);
+        switchCity = (Button) findViewById(R.id.switch_city);
+        refreshWeather = (Button) findViewById(R.id.refresh_weather);
+
+        switchCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(WeatherActivity.this, ChooseAreaActivity.class);
+                intent.putExtra("from_weather_activity", true);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        refreshWeather.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                publishText.setText("同步中……");
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences
+                        (WeatherActivity.this);
+                String cityName = prefs.getString("city_name", "");
+                if (cityName != null || cityName.length() > 0) {
+                    queryWeatherInfo(cityName);
+                }
+            }
+        });
         String countyName = getIntent().getStringExtra("county_name");
         if (countyName != null) {
             publishText.setText("同步中……");
@@ -52,10 +80,10 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     public void queryWeatherInfo(String countyName) {
-        queryFromServer(countyName, "weather");
+        queryFromServer(countyName);
     }
 
-    public void queryFromServer(String code, String type) {
+    public void queryFromServer(String code) {
         String address = "http://apis.baidu.com/apistore/weatherservice/cityname";
         Parameters parameters = new Parameters();
         try {
